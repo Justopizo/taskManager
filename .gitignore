@@ -21,5 +21,4 @@ coverage.xml
 .pytest_cache
 .hypothesis
 db.sqlite3
-staticfiles/
 media/
