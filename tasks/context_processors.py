@@ -1,5 +1,6 @@
 """Template context helpers."""
 
+from django.db import connection
 from .models import Notification
 
 
@@ -8,8 +9,11 @@ def notification_context(request):
     if not request.user.is_authenticated:
         return {"latest_notifications": [], "unread_notifications_count": 0}
 
-    notifications = Notification.objects.filter(user=request.user).order_by("-created_at")
-    return {
-        "latest_notifications": notifications[:5],
-        "unread_notifications_count": notifications.filter(is_read=False).count(),
-    }
+    try:
+        notifications = Notification.objects.filter(user=request.user).order_by("-created_at")
+        return {
+            "latest_notifications": notifications[:5],
+            "unread_notifications_count": notifications.filter(is_read=False).count(),
+        }
+    except Exception:
+        return {"latest_notifications": [], "unread_notifications_count": 0}

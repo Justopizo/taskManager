@@ -22,15 +22,17 @@
 </div>
 
 <nav id="mainNavbar" class="navbar navbar-expand-lg navbar-blur sticky-top">
-    <div class="container position-relative">
-        <button class="btn btn-glass d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-label="Open navigation">
-            <i class="bi bi-list"></i>
-        </button>
-        <a class="navbar-brand brand-mark" href="{% if request.user.is_authenticated %}{% url 'tasks:dashboard' %}{% else %}{% url 'landing' %}{% endif %}">
-            <span class="brand-icon"><i class="bi bi-kanban-fill"></i></span>
-            <span>TaskManager</span>
-        </a>
-        <div class="d-flex d-lg-none align-items-center gap-2 ms-auto">
+    <div class="container">
+        <div class="d-flex align-items-center">
+            <button class="btn btn-glass d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-label="Open navigation">
+                <i class="bi bi-list"></i>
+            </button>
+            <a class="navbar-brand brand-mark" href="{% if request.user.is_authenticated %}{% url 'tasks:dashboard' %}{% else %}{% url 'landing' %}{% endif %}">
+                <span class="brand-icon"><i class="bi bi-kanban-fill"></i></span>
+                <span>TaskManager</span>
+            </a>
+        </div>
+        <div class="d-flex d-lg-none align-items-center gap-2">
             <button class="btn btn-glass theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme">
                 <i class="bi bi-moon-stars"></i>
             </button>
@@ -43,7 +45,7 @@
                 </a>
             {% endif %}
         </div>
-        <button class="navbar-toggler border-0 shadow-none d-none d-lg-inline-flex" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <button class="navbar-toggler border-0 shadow-none d-none d-lg-block" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarMain">
