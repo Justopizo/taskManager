@@ -2,45 +2,69 @@
 {% block title %}TaskManager | Collaborative Task Management{% endblock %}
 {% block body_class %}landing-main{% endblock %}
 {% block full_bleed %}
-<section class="container py-5 py-lg-5" data-parallax-hero>
+<section class="container pt-4 pt-lg-5" data-parallax-hero>
     <div class="hero-shell">
         <div class="hero-gradient"></div>
         <div class="parallax-orb one" data-parallax="0.6"></div>
         <div class="parallax-orb two" data-parallax="1"></div>
         <div class="hero-grid row align-items-center g-5 w-100">
             <div class="col-lg-7 hero-copy" data-aos="fade-up">
+                <div class="eyebrow"><i class="bi bi-lightning-charge-fill"></i> Collaborative planning without the clutter</div>
                 <h1 class="display-4 fw-bold mb-3">Keep tasks, teams, and delivery <span data-typed="visible|aligned|moving"></span></h1>
-                <p class="lead mb-4">One place to plan work, track progress, and stay ahead of deadlines.</p>
+                <p class="lead mb-4">TaskManager gives your team one place to plan work, track progress, comment in context, and stay ahead of deadlines with live notifications.</p>
                 <div class="d-flex flex-wrap gap-3">
                     <a class="btn btn-primary btn-lg" href="{% url 'tasks:register' %}"><i class="bi bi-person-plus"></i> Get Started</a>
-                    <a class="btn btn-outline-light btn-lg" href="{% url 'tasks:login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    <a class="btn btn-glass btn-lg text-white border-white" href="{% url 'tasks:login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                </div>
+                <div class="hero-metrics">
+                    <div class="metric-card">
+                        <strong>Task flow</strong>
+                        <span>Track work from pending to done</span>
+                    </div>
+                    <div class="metric-card">
+                        <strong>Fast updates</strong>
+                        <span>Comment threads refresh every 10 seconds</span>
+                    </div>
+                    <div class="metric-card">
+                        <strong>Team focus</strong>
+                        <span>Invite codes keep collaboration simple</span>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-5" data-aos="fade-left">
-                <div class="glass-card p-4 text-white" style="background: rgba(15, 23, 42, 0.36); border-color: rgba(255,255,255,0.12);">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="glass-card p-4 text-white h-100 d-flex flex-column justify-content-center" style="background: rgba(15, 23, 42, 0.36); border-color: rgba(255,255,255,0.12);">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <div class="small text-uppercase opacity-75">Today</div>
                             <h2 class="h4 mb-0">Execution cockpit</h2>
                         </div>
                         <span class="feature-icon bg-white text-dark"><i class="bi bi-activity"></i></span>
                     </div>
-                    <div class="table-row-card mb-2" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.08);">
+                    <div class="table-row-card mb-3" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.08);">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div><strong>Launch mobile board</strong></div>
-                            <span class="priority-badge urgent"><i class="bi bi-exclamation-octagon-fill"></i></span>
+                            <div>
+                                <strong>Launch mobile board</strong>
+                                <div class="small opacity-75">Design review with product team</div>
+                            </div>
+                            <span class="priority-badge urgent"><i class="bi bi-exclamation-octagon-fill"></i> Urgent</span>
                         </div>
                     </div>
-                    <div class="table-row-card mb-2" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.08);">
+                    <div class="table-row-card mb-3" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.08);">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div><strong>Sync comments</strong></div>
-                            <span class="status-badge in_progress"><i class="bi bi-lightning-charge"></i></span>
+                            <div>
+                                <strong>Sync comments</strong>
+                                <div class="small opacity-75">Realtime collaboration for engineering</div>
+                            </div>
+                            <span class="status-badge in_progress"><i class="bi bi-lightning-charge"></i> In Progress</span>
                         </div>
                     </div>
                     <div class="table-row-card" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.08);">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div><strong>Weekly review</strong></div>
-                            <span class="status-badge done"><i class="bi bi-check2-circle"></i></span>
+                            <div>
+                                <strong>Weekly review</strong>
+                                <div class="small opacity-75">Notifications keep everyone aligned</div>
+                            </div>
+                            <span class="status-badge done"><i class="bi bi-check2-circle"></i> Done</span>
                         </div>
                     </div>
                 </div>
@@ -51,26 +75,130 @@
 {% endblock %}
 {% block content %}
 <section id="features" class="py-5">
+    <div class="section-heading" data-aos="fade-up">
+        <div class="eyebrow text-dark border-0" style="background: rgba(37, 99, 235, 0.08); color: var(--accent);">Core features</div>
+        <h2 class="display-6 fw-bold">A sharper interface for day-to-day execution</h2>
+        <p class="text-muted mb-0">The platform already works. This layer makes it feel fast, modern, and easier to operate on desktop and mobile.</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6 col-xl-3" data-aos="fade-up">
+            <div class="feature-card">
+                <div class="feature-icon mb-3"><i class="bi bi-kanban"></i></div>
+                <h3 class="h5">Task Management</h3>
+                <p class="text-muted mb-0">Switch between list and Kanban views, drag tasks across stages, and scan deadlines instantly.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3" data-aos="fade-up" data-aos-delay="80">
+            <div class="feature-card">
+                <div class="feature-icon mb-3"><i class="bi bi-people"></i></div>
+                <h3 class="h5">Team Collaboration</h3>
+                <p class="text-muted mb-0">Invite teammates with one code, monitor shared activity, and see role ownership at a glance.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3" data-aos="fade-up" data-aos-delay="160">
+            <div class="feature-card">
+                <div class="feature-icon mb-3"><i class="bi bi-chat-dots"></i></div>
+                <h3 class="h5">Real-time Comments</h3>
+                <p class="text-muted mb-0">Comments refresh automatically so conversation stays attached to the work and easy to follow.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3" data-aos="fade-up" data-aos-delay="240">
+            <div class="feature-card">
+                <div class="feature-icon mb-3"><i class="bi bi-bell"></i></div>
+                <h3 class="h5">Notifications</h3>
+                <p class="text-muted mb-0">Unread badges, live toasts, and periodic polling keep critical updates visible without disruption.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="row g-4 align-items-stretch">
+        <div class="col-lg-7" data-aos="fade-right">
+            <div class="glass-card p-4 p-lg-5 h-100">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <span class="feature-icon"><i class="bi bi-magic"></i></span>
+                    <div>
+                        <h3 class="h4 mb-1">Designed for momentum</h3>
+                        <p class="text-muted mb-0">Glass surfaces, clear gradients, smooth transitions, and strong mobile ergonomics.</p>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="table-row-card h-100">
+                            <strong>Dark / Light mode</strong>
+                            <p class="text-muted mb-0 mt-2">Persistent theme preference stored locally.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="table-row-card h-100">
+                            <strong>Animated counters</strong>
+                            <p class="text-muted mb-0 mt-2">Dashboard metrics count up and charts render with gradient fills.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="table-row-card h-100">
+                            <strong>Touch-friendly controls</strong>
+                            <p class="text-muted mb-0 mt-2">Larger targets, bottom navigation, and mobile sidebar access.</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="table-row-card h-100">
+                            <strong>Operational shortcuts</strong>
+                            <p class="text-muted mb-0 mt-2">Floating actions, inline edits, and copy-to-clipboard invite flows.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5" data-aos="fade-left">
+            <div class="glass-card p-4 p-lg-5 h-100">
+                <h3 class="h4 mb-3">Start in under a minute</h3>
+                <div class="activity-feed">
+                    <div class="activity-item">
+                        <strong>1. Create your account</strong>
+                        <p class="text-muted mb-0">A simplified registration flow asks only for what matters.</p>
+                    </div>
+                    <div class="activity-item">
+                        <strong>2. Spin up your team</strong>
+                        <p class="text-muted mb-0">Create a workspace, share the invite code, and onboard collaborators quickly.</p>
+                    </div>
+                    <div class="activity-item">
+                        <strong>3. Move work visually</strong>
+                        <p class="text-muted mb-0">Track execution with list and board views, priority markers, and countdown timers.</p>
+                    </div>
+                </div>
+                <div class="mt-4 d-grid gap-2">
+                    <a class="btn btn-primary" href="{% url 'tasks:register' %}"><i class="bi bi-rocket-takeoff"></i> Launch Workspace</a>
+                    <a class="btn btn-glass" href="{% url 'tasks:login' %}"><i class="bi bi-door-open"></i> Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="faq" class="py-5">
+    <div class="section-heading" data-aos="fade-up">
+        <h2 class="h2 fw-bold">About TaskManager</h2>
+        <p class="text-muted mb-0">A modern collaborative task management system built for efficiency and team productivity.</p>
+    </div>
     <div class="row g-4">
         <div class="col-md-4" data-aos="fade-up">
             <div class="feature-card h-100">
-                <div class="feature-icon mb-3"><i class="bi bi-kanban"></i></div>
-                <h3 class="h5">Task Management</h3>
-                <p class="text-muted mb-0">List and Kanban views with drag-and-drop. Track priorities and deadlines at a glance.</p>
+                <h3 class="h5"><i class="bi bi-person-badge"></i> Current User</h3>
+                <p class="text-muted mb-0">TaskManager tracks your profile, preferences, and task assignments across all your teams. Your dashboard provides real-time insights into your work.</p>
             </div>
         </div>
-        <div class="col-md-4" data-aos="fade-up" data-aos-delay="80">
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="90">
             <div class="feature-card h-100">
-                <div class="feature-icon mb-3"><i class="bi bi-people"></i></div>
-                <h3 class="h5">Team Collaboration</h3>
-                <p class="text-muted mb-0">Invite teammates with a single code. Share workspaces and track team activity.</p>
+                <h3 class="h5"><i class="bi bi-lightning-charge"></i> System Efficiency</h3>
+                <p class="text-muted mb-0">Built on Django with optimized queries, real-time notifications, and responsive design for minimal latency and maximum productivity.</p>
             </div>
         </div>
-        <div class="col-md-4" data-aos="fade-up" data-aos-delay="160">
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="180">
             <div class="feature-card h-100">
-                <div class="feature-icon mb-3"><i class="bi bi-bell"></i></div>
-                <h3 class="h5">Real-time Updates</h3>
-                <p class="text-muted mb-0">Live notifications keep everyone aligned. Never miss a critical update.</p>
+                <h3 class="h5"><i class="bi bi-shield-check"></i> Secure Collaboration</h3>
+                <p class="text-muted mb-0">Team-based access control ensures only authorized members can view, edit, or complete tasks within their teams.</p>
             </div>
         </div>
     </div>
