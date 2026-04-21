@@ -1,0 +1,18 @@
+/* Basic project styling with responsive spacing helpers. */
+
+body {
+    min-height: 100vh;
+}
+
+.card {
+    border: 0;
+    border-radius: 1rem;
+}
+
+.navbar .dropdown-menu {
+    border: 0;
+}
+
+code {
+    font-size: 0.9em;
+}
