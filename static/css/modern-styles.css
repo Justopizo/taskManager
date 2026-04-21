@@ -93,6 +93,7 @@ body.app-shell {
     background: color-mix(in srgb, var(--surface-strong) 88%, transparent);
     border-bottom: 1px solid var(--surface-border);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    min-height: 64px;
 }
 
 .navbar-blur.is-scrolled {
