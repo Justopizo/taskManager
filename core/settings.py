@@ -33,9 +33,12 @@ def database_config() -> dict[str, object]:
     return dj_database_url.parse(database_url)
 
 
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-secret-key-change-me")
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is not set")
+
 DEBUG = get_bool_env("DEBUG", False)
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,.railway.app,.up.railway.app,.railway.app").split(",")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,.railway.app,.up.railway.app").split(",")
 CSRF_TRUSTED_ORIGINS = [
     "https://*.up.railway.app",
     "https://*.railway.app",
@@ -87,7 +90,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "core.asgi.application"
 
-DATABASES = {"default": database_config()}
+DATABASES = {"default": dj_database_url.config(conn_max_age=600, ssl_require=True)}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -134,3 +137,12 @@ OAUTH_PROVIDERS = {
     "google": {"enabled": False},
     "github": {"enabled": False},
 }
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+REQUIRED_ENV_VARS = ["SECRET_KEY", "DATABASE_URL"]
+for var in REQUIRED_ENV_VARS:
+    if not os.environ.get(var):
+        raise ValueError(f"Required environment variable '{var}' is not set")
