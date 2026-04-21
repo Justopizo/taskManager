@@ -90,22 +90,9 @@ body.app-shell {
 }
 
 .navbar-blur {
-    background: var(--surface-strong);
+    background: color-mix(in srgb, var(--surface-strong) 88%, transparent);
     border-bottom: 1px solid var(--surface-border);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    min-height: 72px;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    flex-wrap: wrap;
-}
-
-.navbar-collapse {
-    flex-basis: 100%;
-    flex-grow: 1;
-}
-
-.navbar-nav {
-    align-items: center;
 }
 
 .navbar-blur.is-scrolled {
@@ -120,11 +107,9 @@ body.app-shell {
 }
 
 .nav-link {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.45rem;
-    padding: 0.5rem 0.75rem;
-    white-space: nowrap;
 }
 
 .brand-mark {
@@ -133,7 +118,6 @@ body.app-shell {
     gap: 0.75rem;
     font-weight: 700;
     text-decoration: none;
-    white-space: nowrap;
 }
 
 .brand-icon {
