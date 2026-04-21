@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Alerts | TaskManager{% endblock %}
+{% block content %}
+<section class="page-hero glass-card mb-4" data-aos="fade-up">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div>
+            <div class="eyebrow text-dark border-0" style="background: rgba(37, 99, 235, 0.08); color: var(--accent);">
+                <i class="bi bi-exclamation-triangle-fill"></i> Alert center
+            </div>
+            <h1 class="display-6 fw-bold mb-1">Alerts</h1>
+            <p class="text-muted mb-0">Stay updated with task assignments, completions, and team activity.</p>
+        </div>
+        <button class="btn btn-primary" type="button" id="markAllReadButton"><i class="bi bi-check2-all"></i> Mark all as read</button>
+    </div>
+</section>
+
+<section class="notification-list">
+    {% for notification in notifications %}
+        <div class="notification-card d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center {% if not notification.is_read %}border border-primary-subtle{% endif %}" data-aos="fade-up">
+            <div class="d-flex gap-3 align-items-start">
+                <span class="feature-icon">
+                    {% if notification.notification_type == "task_assigned" %}<i class="bi bi-person-plus-fill"></i>
+                    {% elif notification.notification_type == "task_completed" %}<i class="bi bi-check2-circle-fill"></i>
+                    {% elif notification.notification_type == "task_updated" %}<i class="bi bi-pencil-fill"></i>
+                    {% elif notification.notification_type == "member_joined" %}<i class="bi bi-person-check-fill"></i>
+                    {% elif notification.notification_type == "member_removed" %}<i class="bi bi-person-dash-fill"></i>
+                    {% elif notification.notification_type == "team_invite" %}<i class="bi bi-envelope-fill"></i>
+                    {% else %}<i class="bi bi-bell-fill"></i>{% endif %}
+                </span>
+                <div>
+                    <div class="{% if not notification.is_read %}fw-semibold{% endif %}">{{ notification.message }}</div>
+                    <div class="text-muted small mt-1">{{ notification.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                {% if notification.action != "none" and notification.link %}
+                    {% if notification.action == "view" %}
+                        <a href="{{ notification.link }}" class="btn btn-glass"><i class="bi bi-arrow-up-right"></i> View</a>
+                    {% elif notification.action == "edit" %}
+                        <a href="{{ notification.link }}" class="btn btn-glass"><i class="bi bi-pencil"></i> Edit</a>
+                    {% elif notification.action == "assign" %}
+                        <a href="{{ notification.link }}" class="btn btn-glass"><i class="bi bi-person-plus"></i> Assign</a>
+                    {% elif notification.action == "reply" %}
+                        <a href="{{ notification.link }}#comments" class="btn btn-glass"><i class="bi bi-reply"></i> Reply</a>
+                    {% elif notification.action == "accept" %}
+                        <a href="{{ notification.link }}" class="btn btn-primary"><i class="bi bi-check2"></i> Accept</a>
+                    {% elif notification.action == "join" %}
+                        <a href="{{ notification.link }}" class="btn btn-primary"><i class="bi bi-box-arrow-in-right"></i> Join</a>
+                    {% endif %}
+                {% endif %}
+                {% if not notification.is_read %}
+                    <form method="post" action="{% url 'tasks:mark_notification_read' notification.pk %}" class="mark-read-form">
+                        {% csrf_token %}
+                        <button class="btn btn-primary" type="submit"><i class="bi bi-check2"></i> Mark as read</button>
+                    </form>
+                {% else %}
+                    <span class="status-badge done"><i class="bi bi-check2-circle"></i> Read</span>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state">
+            <i class="bi bi-bell-slash display-6 d-block mb-3"></i>
+            You have no alerts.
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const button = document.getElementById("markAllReadButton");
+        const forms = () => Array.from(document.querySelectorAll(".mark-read-form"));
+        
+        button?.addEventListener("click", async () => {
+            const pendingForms = forms();
+            if (!pendingForms.length) {
+                window.taskManagerUI?.showLiveToast?.("Nothing to mark as read.", "secondary");
+                return;
+            }
+            button.disabled = true;
+            button.innerHTML = '<span class="submit-spinner"></span>Updating...';
+            for (const form of pendingForms) {
+                const response = await fetch(form.action, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": window.taskManagerUI?.csrfToken() || "",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    credentials: "same-origin"
+                });
+                if (response.ok) {
+                    form.closest(".notification-card")?.classList.add("opacity-50");
+                    form.remove();
+                }
+            }
+            window.taskManagerUI?.showLiveToast?.("All notifications marked as read.", "success");
+            setTimeout(() => window.location.reload(), 500);
+        });
+    });
+</script>
+{% endblock %}

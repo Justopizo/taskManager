@@ -1,0 +1,11 @@
+{% for comment in task.comments.all %}
+    <div class="comment-card">
+        <div class="d-flex justify-content-between gap-3">
+            <strong>{{ comment.author }}</strong>
+            <span class="small text-muted">{{ comment.created_at|date:"M d, Y H:i" }}</span>
+        </div>
+        <div class="mt-2 text-muted">{{ comment.content|linebreaks }}</div>
+    </div>
+{% empty %}
+    <div class="empty-state py-4">No comments yet.</div>
+{% endfor %}

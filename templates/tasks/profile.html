@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Profile | TaskManager{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h3 mb-3">Profile</h1>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" type="submit">Save changes</button>
+                        <a class="btn btn-outline-secondary" href="{% url 'tasks:password_change' %}">Change password</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Assigned tasks</h2>
+                <div class="list-group list-group-flush">
+                    {% for task in assigned_tasks %}
+                        <a href="{% url 'tasks:task_detail' task.pk %}" class="list-group-item list-group-item-action px-0">
+                            <div class="fw-semibold">{{ task.title }}</div>
+                            <div class="small text-muted">{{ task.team.name }}{% if task.deadline %} • Due {{ task.deadline|date:"M d, Y H:i" }}{% endif %}</div>
+                        </a>
+                    {% empty %}
+                        <div class="text-muted">No tasks are assigned to you.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

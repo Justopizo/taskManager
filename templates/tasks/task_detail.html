@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load custom_filters %}
+{% block title %}{{ task.title }} | TaskManager{% endblock %}
+{% block content %}
+<section class="detail-shell">
+    <div class="glass-card p-4 p-lg-5" data-aos="fade-up">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-4">
+            <div>
+                <div class="eyebrow text-dark border-0" style="background: rgba(37, 99, 235, 0.08); color: var(--accent);">
+                    <i class="bi bi-clipboard-data"></i> Task detail
+                </div>
+                <h1 class="display-6 fw-bold mb-2">{{ task.title }}</h1>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="status-badge {{ task.status }}"><i class="bi bi-dot"></i>{{ task.get_status_display }}</span>
+                    <span class="priority-badge {{ task.priority }}">
+                        {% if task.priority == "urgent" %}<i class="bi bi-exclamation-octagon-fill"></i> Urgent{% elif task.priority == "high" %}<i class="bi bi-circle-fill"></i> High{% elif task.priority == "medium" %}<i class="bi bi-circle-fill"></i> Medium{% else %}<i class="bi bi-circle-fill"></i> Low{% endif %}
+                    </span>
+                    {% if task.deadline %}
+                        <span class="deadline-pill" data-deadline="{{ task.deadline|date:'c' }}"><i class="bi bi-clock-history"></i> Due soon</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap align-items-start">
+                {% if task|can_change_status:request.user %}
+                <form method="post" action="{% url 'tasks:change_task_status' task.pk %}" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <select class="form-select" name="status" style="width: auto;">
+                        {% for value, label in task.STATUS_CHOICES %}
+                            <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-check2"></i> Update Status</button>
+                </form>
+                {% endif %}
+                {% if can_edit %}<a class="btn btn-primary" href="{% url 'tasks:task_edit' task.pk %}"><i class="bi bi-pencil-square"></i> Edit Task</a>{% endif %}
+                <a class="btn btn-glass" href="{% url 'tasks:task_list' %}"><i class="bi bi-arrow-left"></i> Back to Tasks</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="glass-card p-4" data-aos="fade-right">
+                <ul class="nav nav-pills detail-tabs mb-4" id="taskDetailTabs" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-overview" type="button"><i class="bi bi-card-text"></i> Overview</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-comments" type="button"><i class="bi bi-chat-dots"></i> Comments <span class="badge bg-secondary">{{ comments_count }}</span></button></li>
+                    {% if can_edit %}<li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-assign" type="button"><i class="bi bi-person-check"></i> Assignment</button></li>{% endif %}
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tab-overview">
+                        <div class="lead">{{ task.description|default:"No description provided yet."|linebreaks }}</div>
+                        <div class="detail-meta-grid">
+                            <div class="table-row-card">
+                                <div class="small text-muted text-uppercase">Created by</div>
+                                <div class="fw-semibold mt-2">{{ task.created_by }}</div>
+                            </div>
+                            <div class="table-row-card">
+                                <div class="small text-muted text-uppercase">Assigned to</div>
+                                <div class="fw-semibold mt-2">{{ task.assigned_to|default:"Unassigned" }}</div>
+                            </div>
+                            <div class="table-row-card">
+                                <div class="small text-muted text-uppercase">Created</div>
+                                <div class="fw-semibold mt-2">{{ task.created_at|date:"M d, Y H:i" }}</div>
+                            </div>
+                            <div class="table-row-card">
+                                <div class="small text-muted text-uppercase">Updated</div>
+                                <div class="fw-semibold mt-2">{{ task.updated_at|date:"M d, Y H:i" }}</div>
+                            </div>
+                            <div class="table-row-card">
+                                <div class="small text-muted text-uppercase">Deadline</div>
+                                <div class="fw-semibold mt-2">{{ task.deadline|date:"M d, Y H:i"|default:"No deadline" }}</div>
+                            </div>
+                            <div class="table-row-card">
+                                <div class="small text-muted text-uppercase">Team</div>
+                                <div class="fw-semibold mt-2">{{ task.team.name }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="tab-comments">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h2 class="h5 mb-1">Discussion</h2>
+                                <p class="text-muted mb-0">Comments refresh every 10 seconds.</p>
+                            </div>
+                            <span class="deadline-pill"><i class="bi bi-arrow-repeat"></i> Live updates</span>
+                        </div>
+                        <div class="comments-panel custom-scrollbar mb-4" id="comments-container" data-comments-feed="{% url 'tasks:task_comments_partial' task.pk %}">
+                            {% include "tasks/partials/comments_list.html" %}
+                        </div>
+                        <form method="post" action="{% url 'tasks:add_comment' task.pk %}">
+                            {% csrf_token %}
+                            {{ comment_form|crispy }}
+                            <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i> Post Comment</button>
+                        </form>
+                    </div>
+                    {% if can_edit %}<div class="tab-pane fade" id="tab-assign">
+                        <div class="glass-card p-4">
+                            <h2 class="h5 mb-3">Assign this task</h2>
+                            <form method="post" action="{% url 'tasks:assign_task' task.pk %}">
+                                {% csrf_token %}
+                                <select class="form-select mb-3" name="assigned_to" required>
+                                    {% for membership in team_members %}
+                                        <option value="{{ membership.user.pk }}" {% if task.assigned_to_id == membership.user.pk %}selected{% endif %}>
+                                            {{ membership.user }} ({{ membership.get_role_display }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-primary w-100" type="submit"><i class="bi bi-person-check"></i> Assign Task</button>
+                            </form>
+                        </div>
+                    </div>{% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="glass-card p-4 mb-4" data-aos="fade-left">
+                <h2 class="h5 mb-3">Execution hints</h2>
+                <div class="activity-feed">
+                    <div class="activity-item">
+                        <strong>Keep the title sharp</strong>
+                        <p class="text-muted mb-0">Use the edit screen when the scope changes or the task needs clearer wording.</p>
+                    </div>
+                    <div class="activity-item">
+                        <strong>Use comments for decisions</strong>
+                        <p class="text-muted mb-0">The auto-refresh loop keeps recent discussion visible without manual reloads.</p>
+                    </div>
+                    <div class="activity-item">
+                        <strong>Watch the deadline</strong>
+                        <p class="text-muted mb-0">Countdown pills show if the task is approaching due date or already overdue.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card p-4" data-aos="fade-left" data-aos-delay="90">
+                <h2 class="h5 mb-3">Current owner</h2>
+                <div class="mini-profile">
+                    <span class="mini-avatar">{% if task.assigned_to %}{{ task.assigned_to.username.0|upper }}{% else %}{{ task.created_by.username.0|upper }}{% endif %}</span>
+                    <div>
+                        <div class="fw-semibold">{% if task.assigned_to %}{{ task.assigned_to }}{% else %}Unassigned{% endif %}</div>
+                        <div class="text-muted small">{% if task.assigned_to %}Responsible teammate{% else %}Assign an owner from the tab{% endif %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

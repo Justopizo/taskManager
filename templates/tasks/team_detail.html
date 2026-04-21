@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}{{ team.name }} | TaskManager{% endblock %}
+{% block content %}
+<section class="glass-card p-4 p-lg-5 mb-4" data-aos="fade-up">
+    <div class="team-header">
+        <div class="team-avatar gradient-a" data-team-avatar>{{ team.name.0|upper }}</div>
+        <div>
+            <div class="eyebrow text-dark border-0" style="background: rgba(37, 99, 235, 0.08); color: var(--accent);">
+                <i class="bi bi-people-fill"></i> Team workspace
+            </div>
+            <h1 class="display-6 fw-bold mb-1">{{ team.name }}</h1>
+            <p class="text-muted mb-0">{{ team.description|default:"No description provided." }}</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#inviteModal"><i class="bi bi-person-plus"></i> Invite</button>
+            <a class="btn btn-glass" href="{% url 'tasks:task_create' %}"><i class="bi bi-plus-circle"></i> Add Task</a>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4">
+    <div class="col-xl-4" data-aos="fade-right">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h4 mb-1">Members</h2>
+                    <p class="text-muted mb-0">{{ team.memberships.count }} collaborators</p>
+                </div>
+                <span class="feature-icon"><i class="bi bi-people"></i></span>
+            </div>
+            <div class="members-grid">
+                {% for membership in team.memberships.all %}
+                    <div class="team-member-card table-row-card">
+                        <div class="mini-profile">
+                            <span class="mini-avatar">{{ membership.user.username.0|upper }}</span>
+                            <div>
+                                <div class="fw-semibold">{{ membership.user }}</div>
+                                <div class="text-muted small">{{ membership.user.email|default:"No email" }}</div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="priority-badge {% if membership.role == 'admin' %}high{% else %}low{% endif %}">
+                                <i class="bi bi-shield-check"></i> {{ membership.get_role_display }}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-5" data-aos="fade-up">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h4 mb-1">Team tasks</h2>
+                    <p class="text-muted mb-0">Visible work currently attached to this team.</p>
+                </div>
+                <span class="feature-icon"><i class="bi bi-check2-square"></i></span>
+            </div>
+            <div class="task-table">
+                {% for task in team.tasks.all %}
+                    <a href="{% url 'tasks:task_detail' task.pk %}" class="table-row-card text-decoration-none">
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+                            <div>
+                                <div class="fw-semibold">{{ task.title }}</div>
+                                <div class="text-muted small mt-1">{{ task.assigned_to|default:"Unassigned" }}</div>
+                            </div>
+                            <span class="priority-badge {{ task.priority }}">
+                                {% if task.priority == "urgent" %}<i class="bi bi-exclamation-octagon-fill"></i> Urgent{% elif task.priority == "high" %}<i class="bi bi-circle-fill"></i> High{% elif task.priority == "medium" %}<i class="bi bi-circle-fill"></i> Medium{% else %}<i class="bi bi-circle-fill"></i> Low{% endif %}
+                            </span>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span class="status-badge {{ task.status }}"><i class="bi bi-dot"></i>{{ task.get_status_display }}</span>
+                            {% if task.deadline %}
+                                <span class="deadline-pill" data-deadline="{{ task.deadline|date:'c' }}"><i class="bi bi-clock"></i> Due soon</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="empty-state">
+                        <i class="bi bi-inbox display-6 d-block mb-3"></i>
+                        No tasks in this team yet.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3" data-aos="fade-left">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h4 mb-1">Activity</h2>
+                    <p class="text-muted mb-0">Recent completions and momentum.</p>
+                </div>
+                <span class="feature-icon"><i class="bi bi-activity"></i></span>
+            </div>
+            <div class="activity-feed">
+                {% for task in team.tasks.all %}
+                    {% if task.status == "done" %}
+                        <div class="activity-item">
+                            <strong>{{ task.title }}</strong>
+                            <p class="text-muted mb-0 mt-2">Completed by {{ task.assigned_to|default:"the team" }}{% if task.updated_at %} on {{ task.updated_at|date:"M d, Y" }}{% endif %}.</p>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                {% endfor %}
+                <div class="activity-item">
+                    <strong>Completion feed</strong>
+                    <p class="text-muted mb-0 mt-2">Finished tasks appear here as the team closes work.</p>
+                </div>
+            </div>
+            <div class="invite-code-box mt-4">
+                <div>
+                    <div class="small text-muted text-uppercase">Invite code</div>
+                    <code class="fs-5">{{ team.invite_code }}</code>
+                </div>
+                <button class="btn btn-glass" type="button" data-copy-text="{{ team.invite_code }}"><i class="bi bi-clipboard"></i> Copy</button>
+            </div>
+            <div class="copy-feedback mt-2"></div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="inviteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-0">
+            <div class="modal-header border-0">
+                <h2 class="modal-title h5">Invite teammates</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Share this code with teammates so they can join the team from the Teams page.</p>
+                <div class="invite-code-box">
+                    <code class="fs-4 mb-0">{{ team.invite_code }}</code>
+                    <button class="btn btn-primary" type="button" data-copy-text="{{ team.invite_code }}"><i class="bi bi-clipboard-check"></i> Copy</button>
+                </div>
+                <div class="copy-feedback mt-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const avatar = document.querySelector("[data-team-avatar]");
+        if (!avatar) {
+            return;
+        }
+        const gradients = ["gradient-a", "gradient-b", "gradient-c", "gradient-d"];
+        const index = {{ team.name|length }} % gradients.length;
+        avatar.classList.remove("gradient-a");
+        avatar.classList.add(gradients[index]);
+    });
+</script>
+{% endblock %}

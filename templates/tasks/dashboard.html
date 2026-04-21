@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | TaskManager{% endblock %}
+{% block content %}
+<section class="page-hero glass-card mb-4" data-aos="fade-up">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <div class="eyebrow text-dark border-0" style="background: rgba(37, 99, 235, 0.08); color: var(--accent);">
+                <i class="bi bi-stars"></i> Workspace overview
+            </div>
+            <h1 class="display-6 fw-bold mb-2">Welcome back, {{ request.user.first_name|default:request.user.username }}</h1>
+            <p class="text-muted mb-0" data-greeting-target>Checking the clock...</p>
+        </div>
+        <div class="col-lg-4">
+            <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                <a class="btn btn-primary" href="{% url 'tasks:task_create' %}"><i class="bi bi-plus-circle"></i> Add Task</a>
+                <a class="btn btn-glass" href="{% url 'tasks:team_create' %}"><i class="bi bi-people"></i> Create Team</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4 mb-4">
+    <div class="col-6 col-xl-3" data-aos="fade-up">
+        <div class="stat-card primary">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <div class="text-muted small text-uppercase">Total Tasks</div>
+                    <div class="stat-value" data-count-to="{{ total_tasks }}">0</div>
+                </div>
+                <span class="stat-icon"><i class="bi bi-stack"></i></span>
+            </div>
+            <div class="small text-muted">All tasks in teams you belong to.</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3" data-aos="fade-up" data-aos-delay="70">
+        <div class="stat-card success">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <div class="text-muted small text-uppercase">Completed</div>
+                    <div class="stat-value" data-count-to="{{ completed_tasks }}">0</div>
+                </div>
+                <span class="stat-icon"><i class="bi bi-check2-circle"></i></span>
+            </div>
+            <div class="small text-muted">Closed tasks that reached done status.</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3" data-aos="fade-up" data-aos-delay="140">
+        <div class="stat-card warning">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <div class="text-muted small text-uppercase">Pending</div>
+                    <div class="stat-value" data-count-to="{{ pending_tasks }}">0</div>
+                </div>
+                <span class="stat-icon"><i class="bi bi-hourglass-split"></i></span>
+            </div>
+            <div class="small text-muted">Work items still waiting for movement.</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3" data-aos="fade-up" data-aos-delay="210">
+        <div class="stat-card danger">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <div class="text-muted small text-uppercase">Overdue</div>
+                    <div class="stat-value" data-count-to="{{ overdue_tasks }}">0</div>
+                </div>
+                <span class="stat-icon"><i class="bi bi-alarm"></i></span>
+            </div>
+            <div class="small text-muted">Tasks with deadlines already behind today.</div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4">
+    <div class="col-xl-7">
+        <div class="glass-card p-4 dashboard-chart-wrap h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h4 mb-1">Priority distribution</h2>
+                    <p class="text-muted mb-0">A quick view of how much urgent work is building up.</p>
+                </div>
+                <span class="feature-icon"><i class="bi bi-bar-chart"></i></span>
+            </div>
+            <div style="height: 260px;">
+                <canvas id="priorityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-5">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h4 mb-1">Recent tasks</h2>
+                    <p class="text-muted mb-0">Latest task activity across your teams.</p>
+                </div>
+                <a class="btn btn-glass btn-sm" href="{% url 'tasks:task_list' %}"><i class="bi bi-arrow-right"></i> Open board</a>
+            </div>
+            <div class="task-table">
+                {% for task in recent_tasks %}
+                    <a href="{% url 'tasks:task_detail' task.pk %}" class="table-row-card text-decoration-none">
+                        <div class="d-flex justify-content-between gap-3 align-items-start">
+                            <div>
+                                <div class="fw-semibold mb-1">{{ task.title }}</div>
+                                <div class="text-muted small">{{ task.team.name }}</div>
+                            </div>
+                            <span class="priority-badge {{ task.priority }}">
+                                {% if task.priority == "urgent" %}<i class="bi bi-exclamation-octagon-fill"></i>{% elif task.priority == "high" %}<i class="bi bi-arrow-up-circle-fill"></i>{% elif task.priority == "medium" %}<i class="bi bi-dash-circle-fill"></i>{% else %}<i class="bi bi-arrow-down-circle-fill"></i>{% endif %}
+                                {{ task.get_priority_display }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3 gap-2 flex-wrap">
+                            <span class="status-badge {{ task.status }}"><i class="bi bi-dot"></i>{{ task.get_status_display }}</span>
+                            {% if task.deadline %}
+                                <span class="deadline-pill" data-deadline="{{ task.deadline|date:'c' }}"><i class="bi bi-clock-history"></i> Due soon</span>
+                            {% else %}
+                                <span class="deadline-pill"><i class="bi bi-calendar-x"></i> No deadline</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="empty-state">
+                        <i class="bi bi-inbox display-6 d-block mb-3"></i>
+                        No tasks yet. Create one to start filling the dashboard.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="quick-actions">
+    <a class="btn btn-primary" href="{% url 'tasks:task_create' %}"><i class="bi bi-plus-lg"></i> Add Task</a>
+    <a class="btn btn-glass" href="{% url 'tasks:team_create' %}"><i class="bi bi-people-fill"></i> Create Team</a>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const canvas = document.getElementById("priorityChart");
+        if (!canvas || !window.Chart) {
+            return;
+        }
+        const ctx = canvas.getContext("2d");
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: ["Low", "Medium", "High", "Urgent"],
+                datasets: [{
+                    label: "Tasks",
+                    data: [
+                        {{ priority_counts.low|default:0 }},
+                        {{ priority_counts.medium|default:0 }},
+                        {{ priority_counts.high|default:0 }},
+                        {{ priority_counts.urgent|default:0 }}
+                    ],
+                    backgroundColor: [
+                        "rgba(34, 197, 94, 0.8)",
+                        "rgba(59, 130, 246, 0.8)",
+                        "rgba(249, 115, 22, 0.8)",
+                        "rgba(239, 68, 68, 0.8)"
+                    ],
+                    borderColor: [
+                        "rgb(34, 197, 94)",
+                        "rgb(59, 130, 246)",
+                        "rgb(249, 115, 22)",
+                        "rgb(239, 68, 68)"
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

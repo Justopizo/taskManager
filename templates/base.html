@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}TaskManager{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='15' fill='%232563eb'/%3E%3Crect x='15' y='20' width='20' height='60' rx='4' fill='white'/%3E%3Crect x='40' y='30' width='20' height='40' rx='4' fill='white'/%3E%3Crect x='65' y='25' width='20' height='50' rx='4' fill='white'/%3E%3C/svg%3E">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modern-styles.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="app-shell {% block body_class %}{% endblock %}" data-authenticated="{% if request.user.is_authenticated %}true{% endif %}">
+<div class="app-background">
+    <div class="app-glow glow-one"></div>
+    <div class="app-glow glow-two"></div>
+</div>
+
+<nav id="mainNavbar" class="navbar navbar-expand-lg navbar-blur sticky-top">
+    <div class="container position-relative">
+        <button class="btn btn-glass d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-label="Open navigation">
+            <i class="bi bi-list"></i>
+        </button>
+        <a class="navbar-brand brand-mark" href="{% if request.user.is_authenticated %}{% url 'tasks:dashboard' %}{% else %}{% url 'landing' %}{% endif %}">
+            <span class="brand-icon"><i class="bi bi-kanban-fill"></i></span>
+            <span>TaskManager</span>
+        </a>
+        <div class="d-flex d-lg-none align-items-center gap-2 ms-auto">
+            <button class="btn btn-glass theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme">
+                <i class="bi bi-moon-stars"></i>
+            </button>
+            {% if request.user.is_authenticated %}
+                <a class="btn btn-glass position-relative" href="{% url 'tasks:notifications' %}" aria-label="Alerts">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    {% if unread_notifications_count > 0 %}
+                    <span class="notification-pill" data-notification-badge>{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+            {% endif %}
+        </div>
+        <button class="navbar-toggler border-0 shadow-none d-none d-lg-inline-flex" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'tasks:dashboard' %}"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'tasks:task_list' %}"><i class="bi bi-check2-square"></i> Tasks</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'tasks:team_list' %}"><i class="bi bi-people-fill"></i> Teams</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'tasks:notifications' %}"><i class="bi bi-exclamation-triangle-fill"></i> Alerts{% if unread_notifications_count > 0 %} <span class="badge bg-danger">{{ unread_notifications_count }}</span>{% endif %}</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'landing' %}#features"><i class="bi bi-stars"></i> Features</a></li>
+                {% endif %}
+            </ul>
+            <div class="d-none d-lg-flex align-items-center gap-2 ms-auto">
+                <button class="btn btn-glass theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme">
+                    <i class="bi bi-moon-stars"></i>
+                    <span>Theme</span>
+                </button>
+                {% if request.user.is_authenticated %}
+                    <div class="dropdown">
+                        <button class="btn btn-glass dropdown-toggle position-relative" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>Alerts</span>
+                            {% if unread_notifications_count > 0 %}
+                            <span class="notification-pill" data-notification-badge>{{ unread_notifications_count }}</span>
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0 shadow-lg border-0">
+                            <div class="dropdown-header d-flex justify-content-between align-items-center">
+                                <span>Latest alerts</span>
+                                <a class="small text-decoration-none" href="{% url 'tasks:notifications' %}">View all</a>
+                            </div>
+                            <div data-notification-list>
+                                {% for notification in latest_notifications %}
+                                    <a class="dropdown-item notification-item {% if not notification.is_read %}is-unread{% endif %}" href="{{ notification.link|default:'#' }}">
+                                        <span class="notification-dot"></span>
+                                        <span>
+                                            <strong>{{ notification.message }}</strong>
+                                            <small>{{ notification.created_at|timesince }} ago</small>
+                                        </span>
+                                    </a>
+                                {% empty %}
+                                    <div class="dropdown-item text-muted py-3">No alerts yet.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-glass dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                            <span>{{ request.user.username }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
+                            <li><a class="dropdown-item" href="{% url 'tasks:profile' %}"><i class="bi bi-person-vcard"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tasks:password_change' %}"><i class="bi bi-shield-lock"></i> Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'tasks:logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a class="btn btn-ghost" href="{% url 'tasks:login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    <a class="btn btn-primary" href="{% url 'tasks:register' %}"><i class="bi bi-person-plus"></i> Get Started</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="offcanvas offcanvas-start sidebar-offcanvas" tabindex="-1" id="mobileSidebar">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title brand-mark mb-0">
+            <span class="brand-icon"><i class="bi bi-kanban-fill"></i></span>
+            <span>TaskManager</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+        <div class="list-group list-group-flush mb-4">
+            {% if request.user.is_authenticated %}
+                <a class="list-group-item list-group-item-action" href="{% url 'tasks:dashboard' %}"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'tasks:task_list' %}"><i class="bi bi-check2-square"></i> Tasks</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'tasks:team_list' %}"><i class="bi bi-people-fill"></i> Teams</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'tasks:notifications' %}"><i class="bi bi-exclamation-triangle-fill"></i> Alerts{% if unread_notifications_count > 0 %} <span class="badge bg-danger">{{ unread_notifications_count }}</span>{% endif %}</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'tasks:profile' %}"><i class="bi bi-person-vcard"></i> Profile</a>
+            {% else %}
+                <a class="list-group-item list-group-item-action" href="{% url 'landing' %}#features"><i class="bi bi-stars"></i> Features</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'tasks:login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                <a class="list-group-item list-group-item-action" href="{% url 'tasks:register' %}"><i class="bi bi-person-plus"></i> Register</a>
+            {% endif %}
+        </div>
+        <button class="btn btn-glass justify-content-center mb-3" type="button" data-theme-toggle><i class="bi bi-circle-half"></i> Toggle theme</button>
+        {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'tasks:logout' %}" class="mt-auto">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger w-100"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<main class="site-main">
+    {% block full_bleed %}{% endblock %}
+    <div class="container py-4 py-lg-5">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<footer class="site-footer">
+    <div class="container d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center">
+        <div>
+            <strong>TaskManager</strong>
+            <div class="small text-muted">Organize work, align teams, and keep delivery visible.</div>
+        </div>
+        <div class="d-flex flex-wrap gap-3 small">
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'tasks:task_list' %}">Tasks</a>
+                <a href="{% url 'tasks:team_list' %}">Teams</a>
+                <a href="{% url 'tasks:notifications' %}">Alerts</a>
+            {% else %}
+                <a href="{% url 'landing' %}#features">Features</a>
+                <a href="{% url 'tasks:login' %}">Login</a>
+                <a href="{% url 'tasks:register' %}">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</footer>
+
+<nav class="mobile-bottom-nav d-lg-none">
+    <a href="{% if request.user.is_authenticated %}{% url 'tasks:dashboard' %}{% else %}{% url 'landing' %}{% endif %}">
+        <i class="bi bi-house-door"></i>
+        <span>Home</span>
+    </a>
+    <a href="{% url 'tasks:task_list' %}">
+        <i class="bi bi-kanban"></i>
+        <span>Tasks</span>
+    </a>
+    <a href="{% url 'tasks:team_list' %}">
+        <i class="bi bi-people"></i>
+        <span>Teams</span>
+    </a>
+    <a href="{% url 'tasks:notifications' %}" class="position-relative">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>Alerts</span>
+        {% if request.user.is_authenticated and unread_notifications_count > 0 %}
+            <span class="notification-pill" data-notification-badge>{{ unread_notifications_count }}</span>
+        {% endif %}
+    </a>
+</nav>
+
+<button class="scroll-top-btn" type="button" data-scroll-top aria-label="Scroll to top">
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+{% include "includes/toast.html" %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script src="{% static 'js/theme.js' %}"></script>
+<script src="{% static 'js/animations.js' %}"></script>
+<script src="{% static 'js/kanban.js' %}"></script>
+<script>
+(function() {
+    const csrfToken = () => {
+        const token = document.querySelector('[name=csrfmiddlewaretoken]');
+        return token ? token.value : '';
+    };
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    function updateAlertBadges(count) {
+        document.querySelectorAll('[data-notification-badge]').forEach(function(el) {
+            if (count > 0) {
+                el.textContent = count;
+                el.classList.remove('d-none');
+            } else {
+                el.classList.add('d-none');
+            }
+        });
+    }
+    
+    function fetchAlertCount() {
+        if (!document.body.dataset.authenticated === 'true') return;
+        
+        fetch('/notifications/dropdown/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            const unreadCount = data.notifications ? data.notifications.filter(n => !n.is_read).length : 0;
+            updateAlertBadges(unreadCount);
+        })
+        .catch(() => {});
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.body.dataset.authenticated === 'true') {
+            fetchAlertCount();
+            setInterval(fetchAlertCount, 30000);
+        }
+    });
+})();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,10 @@
+Django>=5.0,<5.2
+djangorestframework
+django-crispy-forms
+crispy-bootstrap5
+python-dotenv
+Pillow
+gunicorn
+psycopg2-binary
+whitenoise
+dj-database-url
