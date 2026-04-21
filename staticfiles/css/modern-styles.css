@@ -1,27 +1,4 @@
-[data-bs-theme="dark"] {
-    --bg: #0f172a;
-    --bg-alt: #1e293b;
-    --surface: rgba(30, 41, 59, 0.85);
-    --surface-strong: rgba(30, 41, 59, 0.95);
-    --surface-border: rgba(148, 163, 184, 0.2);
-    --text-main: #f1f5f9;
-    --text-muted: #94a3b8;
-    --accent: #3b82f6;
-    --accent-2: #14b8a6;
-    --shadow: 0 24px 60px rgba(2, 6, 23, 0.5);
-    --pending: #f59e0b;
-    --in-progress: #06b6d4;
-    --done: #22c55e;
-    --urgent: #ef4444;
-    --high: #f97316;
-    --medium: #eab308;
-    --low: #06b6d4;
-    --nav-height: 84px;
-    --bs-body-font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-    scroll-behavior: smooth;
-}
-
-:root, [data-bs-theme="light"] {
+:root {
     --bg: #f4f7fb;
     --bg-alt: #edf3fb;
     --surface: rgba(255, 255, 255, 0.72);
@@ -42,6 +19,19 @@
     --nav-height: 84px;
     --bs-body-font-family: "Segoe UI", "Helvetica Neue", sans-serif;
     scroll-behavior: smooth;
+}
+
+[data-bs-theme="dark"] {
+    --bg: #081120;
+    --bg-alt: #111c30;
+    --surface: rgba(10, 19, 36, 0.72);
+    --surface-strong: rgba(10, 19, 36, 0.9);
+    --surface-border: rgba(148, 163, 184, 0.18);
+    --text-main: #eff6ff;
+    --text-muted: #9fb0c8;
+    --accent: #60a5fa;
+    --accent-2: #2dd4bf;
+    --shadow: 0 24px 60px rgba(2, 6, 23, 0.45);
 }
 
 html, body {
@@ -522,44 +512,44 @@ body.app-shell {
 
 .status-badge.pending,
 .filter-chip.pending {
-    background: color-mix(in srgb, var(--pending) 22%, transparent);
-    color: var(--pending);
+    background: color-mix(in srgb, var(--pending) 18%, transparent);
+    color: #8a6500;
 }
 
 .status-badge.in_progress,
 .filter-chip.in_progress {
-    background: color-mix(in srgb, var(--in-progress) 22%, transparent);
-    color: var(--in-progress);
+    background: color-mix(in srgb, var(--in-progress) 18%, transparent);
+    color: #0b7285;
 }
 
 .status-badge.done,
 .filter-chip.done {
-    background: color-mix(in srgb, var(--done) 22%, transparent);
-    color: var(--done);
+    background: color-mix(in srgb, var(--done) 18%, transparent);
+    color: #146c43;
 }
 
 .priority-badge.urgent,
 .filter-chip.urgent {
-    background: color-mix(in srgb, var(--urgent) 20%, transparent);
-    color: var(--urgent);
+    background: color-mix(in srgb, var(--urgent) 16%, transparent);
+    color: #a61e33;
 }
 
 .priority-badge.high,
 .filter-chip.high {
-    background: color-mix(in srgb, var(--high) 22%, transparent);
-    color: var(--high);
+    background: color-mix(in srgb, var(--high) 18%, transparent);
+    color: #b45309;
 }
 
 .priority-badge.medium,
 .filter-chip.medium {
-    background: color-mix(in srgb, var(--medium) 20%, transparent);
-    color: var(--medium);
+    background: color-mix(in srgb, var(--medium) 16%, transparent);
+    color: #8a6500;
 }
 
 .priority-badge.low,
 .filter-chip.low {
-    background: color-mix(in srgb, var(--low) 20%, transparent);
-    color: var(--low);
+    background: color-mix(in srgb, var(--low) 16%, transparent);
+    color: #0b7285;
 }
 
 .filter-chip.active {

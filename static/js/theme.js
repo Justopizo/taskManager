@@ -2,11 +2,9 @@
     const root = document.documentElement;
     const storageKey = "taskmanager-theme";
 
-    function setTheme(theme, persist = true) {
+    function setTheme(theme) {
         root.setAttribute("data-bs-theme", theme);
-        if (persist) {
-            localStorage.setItem(storageKey, theme);
-        }
+        localStorage.setItem(storageKey, theme);
         document.querySelectorAll("[data-theme-toggle]").forEach((toggle) => {
             const icon = toggle.querySelector("i");
             if (!icon) {
@@ -21,24 +19,16 @@
         if (saved === "dark" || saved === "light") {
             return saved;
         }
-        return "dark";
+        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
 
-    function initTheme() {
-        const theme = preferredTheme();
-        setTheme(theme, false);
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initTheme);
-    } else {
-        initTheme();
-    }
-
-    document.querySelectorAll("[data-theme-toggle]").forEach((toggle) => {
-        toggle.addEventListener("click", () => {
-            const next = root.getAttribute("data-bs-theme") === "dark" ? "light" : "dark";
-            setTheme(next);
+    document.addEventListener("DOMContentLoaded", () => {
+        setTheme(preferredTheme());
+        document.querySelectorAll("[data-theme-toggle]").forEach((toggle) => {
+            toggle.addEventListener("click", () => {
+                const next = root.getAttribute("data-bs-theme") === "dark" ? "light" : "dark";
+                setTheme(next);
+            });
         });
     });
 })();
