@@ -42,7 +42,6 @@ body.app-shell {
     background: radial-gradient(circle at top, rgba(37, 99, 235, 0.12), transparent 35%), var(--bg);
     color: var(--text-main);
     transition: background-color 0.3s ease, color 0.3s ease;
-    padding-bottom: 88px;
 }
 
 .app-background {

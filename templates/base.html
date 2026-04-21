@@ -181,28 +181,6 @@
     </div>
 </footer>
 
-<nav class="mobile-bottom-nav d-lg-none">
-    <a href="{% if request.user.is_authenticated %}{% url 'tasks:dashboard' %}{% else %}{% url 'landing' %}{% endif %}">
-        <i class="bi bi-house-door"></i>
-        <span>Home</span>
-    </a>
-    <a href="{% url 'tasks:task_list' %}">
-        <i class="bi bi-kanban"></i>
-        <span>Tasks</span>
-    </a>
-    <a href="{% url 'tasks:team_list' %}">
-        <i class="bi bi-people"></i>
-        <span>Teams</span>
-    </a>
-    <a href="{% url 'tasks:notifications' %}" class="position-relative">
-        <i class="bi bi-exclamation-triangle-fill"></i>
-        <span>Alerts</span>
-        {% if request.user.is_authenticated and unread_notifications_count > 0 %}
-            <span class="notification-pill" data-notification-badge>{{ unread_notifications_count }}</span>
-        {% endif %}
-    </a>
-</nav>
-
 <button class="scroll-top-btn" type="button" data-scroll-top aria-label="Scroll to top">
     <i class="bi bi-arrow-up"></i>
 </button>
